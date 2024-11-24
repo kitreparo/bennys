@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uso do baú</title>
+    <style>
+        /* O estilo permanece o mesmo */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            overflow-y: auto; /* Permitir rolar sem perder os dados */
+        }
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: left;
+            overflow-y: auto;
+            max-height: 80vh; /* Controla a altura do container */
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 30px; 
+            font-weight: bold;
+            text-align: center;
+        }
+        label, p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        label {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        input[type="text"], input[type="number"], input[type="time"], input[type="text"]:disabled {
+            padding: 12px;
+            width: 100%;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px; /* Aumentar o tamanho dos botões */
+            font-size: 16px; /* Aumentar a fonte */
+            width: 48%; /* Ajuste a largura dos botões para 48% */
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button {
+            background: #007BFF;
+            color: #ffffff;
+            border: none;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .reset-button {
+            background: #000000;
+            color: #ffffff;
+        }
+        .reset-button:hover {
+            background: #333333;
+        }
+        .generate-button {
+            background: #28a745;
+        }
+        .generate-button:hover {
+            background: #218838;
+        }
+
+        .error {
+            color: #e53e3e;
+            font-size: 14px;
+            background-color: #fff2f2;
+            border: 1px solid #e53e3e;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 15px;
+            border: 2px solid #000;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .result.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .generated-text {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            background-color: #e9f7e9;
+            font-size: 16px;
+            display: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-button {
+            font-size: 20px;
+            cursor: pointer;
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        /* Estilo para a Taxa da Bennys em vermelho no resultado */
+        .tax-red {
+            color: red;
+        }
+
+        /* Estilo para o Lucro do mecânico em verde */
+        .profit-green {
+            color: green;
+        }
+
+        /* Para colocar os botões na mesma linha */
+        .button-container {
+            display: flex;
+            justify-content: space-between; /* Para colocar os botões na mesma linha */
+            gap: 10px; /* Espaço entre os botões */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Uso do baú</h1>
+
+        <label for="tinha">Tinha:</label>
+        <input type="text" id="tinha" placeholder="Digite quantos kits tinha (verificar em uso-do-baú)" oninput="formatNumber(this)" />
+
+        <label for="tem">Tem:</label>
+        <input type="text" id="tem" placeholder="Digite quantos kits terão (subtrair kits vendidos dos que tinha)" oninput="formatNumber(this)" />
+
+        <label for="buyer-name">Nome:</label>
+        <input type="text" id="buyer-name" placeholder="Digite o nome do comprador" />
+
+        <label for="passport">Passaporte:</label>
+        <input type="number" id="passport" placeholder="Digite passaporte do comprador" />
+
+        <label for="profession">Profissão:</label>
+        <input type="text" id="profession" placeholder="Digite a profissão, (lembrando que se for de fac utilizamos Nenhuma)" />
+
+        <label for="quantity">Quantidade:</label>
+        <input type="number" id="quantity" placeholder="Digite a quantidade de kits a ser vendida" min="5" oninput="calculatePrice()" />
+
+        <label for="value">Valor:</label>
+        <input type="text" id="value" placeholder="Valor que o cliente irá pagar" oninput="formatValue(this)" disabled />
+
+        <label for="tax-id">ID do imposto:</label>
+        <input type="text" id="tax-id" value="226" disabled />
+
+        <label for="time">Hora:</label>
+        <input type="time" id="time" />
+
+                
+        <!-- Alteração para colocar os botões na mesma linha -->
+        <div class="button-container">
+            <button class="generate-button" onclick="generateText()">Gerar Texto</button>
+            <button class="reset-button" onclick="resetForm()">Resetar</button>
+        </div>
+
+        <div id="error-msg" class="error"></div>
+        <div class="result" id="result"></div>
+        <div class="generated-text" id="generated-text">
+            <div id="generated-content"></div>
+            <span class="copy-button" onclick="copyText()">📝</span>
+        </div>
+    </div>
+
+    <script>
+        function calculatePrice() {
+            const pricePerKit = 5000;
+            const taxPerKit = 2000;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const errorMsg = document.getElementById('error-msg');
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.classList.remove('show');
+            resultDiv.innerHTML = "";
+
+            if (isNaN(quantity) || quantity < 5) {
+                errorMsg.textContent = "A quantidade mínima para compra é de 5 kits.";
+                errorMsg.style.display = 'block';
+                return;
+            } else {
+                errorMsg.style.display = 'none';
+            }
+
+            const totalPrice = pricePerKit * quantity;
+            const totalTaxes = taxPerKit * quantity;
+            const totalWithoutTaxes = totalPrice - totalTaxes;
+
+            resultDiv.innerHTML = ` 
+                <p><strong>Cliente paga:</strong> R$${formatCurrency(totalPrice)}</p>
+                <p><strong>Taxa da bennys:</strong> <span class="tax-red">R$${formatCurrency(totalTaxes)}</span></p>
+                <p><strong>Lucro do mecânico:</strong> <span class="profit-green">R$${formatCurrency(totalWithoutTaxes)}</span></p>
+            `;
+            
+            resultDiv.classList.add('show');
+
+            const valueField = document.getElementById('value');
+            valueField.value = `R$${formatCurrency(totalPrice)}`;
+        }
+
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR');
+        }
+
+        function formatNumber(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = value.replace(/(\d)(\d{3})$/, '$1.$2');
+            value = value.replace(/(?=(\d{3})+(\.))/g, '$1.');
+            input.value = value;
+        }
+
+        function resetForm() {
+            document.getElementById('tinha').value = '';
+            document.getElementById('tem').value = '';
+            document.getElementById('buyer-name').value = '';
+            document.getElementById('passport').value = '';
+            document.getElementById('profession').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('value').value = '';
+            document.getElementById('time').value = '';
+            document.getElementById('error-msg').style.display = 'none';
+            document.getElementById('generated-text').style.display = 'none';
+            document.getElementById('generated-content').textContent = '';
+            document.getElementById('result').classList.remove('show');
+        }
+
+        function generateText() {
+            const tinha = document.getElementById('tinha').value;
+            const tem = document.getElementById('tem').value;
+            const buyerName = document.getElementById('buyer-name').value;
+            const passport = document.getElementById('passport').value;
+            const profession = document.getElementById('profession').value;
+            const quantity = document.getElementById('quantity').value;
+            const value = document.getElementById('value').value;
+            const time = document.getElementById('time').value;
+            const taxId = document.getElementById('tax-id').value;
+
+            if (!tinha || !tem || !buyerName || !passport || !profession || !quantity || !value || !time) {
+                document.getElementById('error-msg').textContent = "Preencha todos os campos.";
+                document.getElementById('error-msg').style.display = 'block';
+                return;
+            }
+
+            const generatedContent = `
+Tinha: ${tinha}
+Tem: ${tem}
+Nome: ${buyerName}
+Passaporte: ${passport}
+Profissão: ${profession}
+Quantidade: ${quantity}
+Valor: ${value}
+ID do imposto: ${taxId}
+Hora: ${time}
+            `;
+
+            document.getElementById('generated-content').textContent = generatedContent;
+            document.getElementById('generated-text').style.display = 'block';
+        }
+
+        function copyText() {
+            const textToCopy = document.getElementById('generated-content').textContent.trim();
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert("Texto copiado para a área de transferência!");
+        }
+    </script>
+</body>
+</html>
